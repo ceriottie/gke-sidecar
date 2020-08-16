@@ -25,10 +25,9 @@ def getLastLog():
     return latest_file
 
 if __name__ == "__main__":
-    #client = google.cloud.logging.Client()
-    #client.setup_logging()
+    client = google.cloud.logging.Client()
+    client.setup_logging()
     while True:
-        print ("First")
         latest_file = getLastLog()
         
         if(lastlog != latest_file):
@@ -38,5 +37,4 @@ if __name__ == "__main__":
             
             thread_follow.setDaemon(True)
             thread_follow.start()
-        print ("AFTHER")
         time.sleep(60)
