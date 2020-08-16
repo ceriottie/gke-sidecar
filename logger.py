@@ -4,20 +4,28 @@ import sys
 import time
 import threading
 import logging
-import google.cloud.logging
+from google.cloud import logging as cloudlogging
+#import google.cloud.logging
 from sh import tail
 
+#client = google.cloud.logging.Client()
+log_client = cloudlogging.Client()
+log_handler = log_client.get_default_handler()
+cloud_logger = logging.getLogger("cloudLogger")
+cloud_logger.setLevel(logging.INFO)
+cloud_logger.addHandler(log_handler)
+
+#client.setup_logging()
 logsdir = os.environ['LOG_FOLDER']
 lastlog = ""
 
 def follow():
     global lastlog
-    print("MONITORING THIS LOG FILE: " + lastlog)
     for line in tail("-f", lastlog, _iter=True):
-        if "|INFO|" in line:
-            logging.info(line)
+        if ("INFO" in line):
+            cloud_logger.info(line)
         else:
-            logging.error(line)
+            cloud_logger.error(line)
 
 def getLastLog():
     list_of_files = glob.glob(logsdir)
@@ -25,11 +33,8 @@ def getLastLog():
     return latest_file
 
 if __name__ == "__main__":
-    client = google.cloud.logging.Client()
-    client.setup_logging()
     while True:
         latest_file = getLastLog()
-        
         if(lastlog != latest_file):
             thread_follow = threading.Thread(target=follow)
             print ("Run new Thread")
