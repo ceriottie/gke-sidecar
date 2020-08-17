@@ -24,6 +24,8 @@ def follow():
     for line in tail("-f", lastlog, _iter=True):
         if ("INFO" in line):
             cloud_logger.info(line)
+        elif ("WARN" in line):
+            cloud_logger.warning(line)
         else:
             cloud_logger.error(line)
 
